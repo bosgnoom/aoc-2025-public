@@ -70,7 +70,7 @@ def valid_id2(id: str) -> int:
     if id.startswith('0'):
         return 0
 
-    # Let's loop this, starting from 1 to length ID
+    # Let's loop this, starting from 1 to half length ID
     for n in range(1, 1 + len(id) // 2):
         # Only where ID can be split in equal parts
         if len(id) % n == 0:
@@ -80,18 +80,11 @@ def valid_id2(id: str) -> int:
 
             logger.debug(f'{chunks=}')
 
-            # Use counter collection, shows how many times same data is in our list
-            c = Counter(chunks)
-
-            # Clunky method, get most common one (is the 1st item in the list)
-            # this is a tuple, grab the second item, which is the count
-            repetitions = c.most_common(1)[0][1]
-
-            logger.debug(f'{c}, {repetitions}')
-
             # We have a result if there are more than 2 repetitions and
-            # there is only one thing which is repeated
-            if repetitions >= 2 and len(c) == 1:
+            # there is only one thing which is repeated, so by converting
+            # the chunks into a set, it should be only of length 1. The minimum
+            # of 2 repetitions is ensured by looping over the ID length // 2 above.
+            if len(set(chunks)) == 1:
                 return int(id)
     return 0
 
