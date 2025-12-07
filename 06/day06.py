@@ -59,10 +59,8 @@ def part1(homework: list) -> int:
 
         if operator == "*":
             answer = math.prod(nums)
-        elif operator == "+":
+        if operator == "+":
             answer = sum(nums)
-        else:
-            raise ValueError(f"Unknown operator: {operator[i]}")
 
         total += answer
 
