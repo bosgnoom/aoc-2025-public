@@ -1,4 +1,5 @@
-lignes = open('08/input.txt').read().splitlines()
+import pprint
+lignes = open('08/sample01.txt').read().splitlines()
 n = len(lignes)
 aretes = []
 for i, ligne1 in enumerate(lignes):
@@ -11,6 +12,8 @@ for i, ligne1 in enumerate(lignes):
         distsq = dx**2 + dy**2 + dz**2
         aretes.append((distsq, i, j + i + 1))
 aretes.sort()
+
+pprint.pprint(aretes)
 
 parent = list(range(n))
 size = [1] * n
@@ -31,7 +34,7 @@ def union(a, b):
     return size[a]
 
 
-for _, a, b in aretes[:1000]:
+for _, a, b in aretes[:10]:
     union(a, b)
 
 sizes = [size[i] for i in range(n) if i == parent[i]]

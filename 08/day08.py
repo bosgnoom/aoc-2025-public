@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     for dist in distances:  # [0:10]:
         # unpack
-        coord1, coord2, distance = dist
+        coord1, coord2, _ = dist
 
         print(f'Processing coords {coords[coord1]} and {coords[coord2]}')
         if coord1 not in connected and coord2 not in connected:
