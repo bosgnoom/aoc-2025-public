@@ -7,7 +7,7 @@ coloredlogs.install(level='INFO')
 logger = logging.getLogger(__name__)
 
 # Screen settings
-SCALE = 12
+SCALE = 4
 FPS = 5
 
 
