@@ -1,3 +1,5 @@
 coloredlogs
 pytest
 pygame-ce
+shapely
+pulp
