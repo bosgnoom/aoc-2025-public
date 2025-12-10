@@ -3,6 +3,3 @@ __pycache__
 .vscode
 .coverage
 venv
-
-# As per advent of code policy, do not share input files
-**/input.txt
