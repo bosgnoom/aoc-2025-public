@@ -1,5 +1,8 @@
 __pycache__
 .pytest_cache
 .vscode
-venv
 .coverage
+venv
+
+# As per advent of code policy, do not share input files
+**/input.txt
