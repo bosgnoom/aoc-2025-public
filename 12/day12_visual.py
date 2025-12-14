@@ -1,3 +1,4 @@
+import pprint
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
@@ -113,21 +114,26 @@ def solve_pulp(grid_h, grid_w, piece_types):
 def render_solution(grid_h, grid_w, piece_types, placements, selected):
     board = -1 * np.ones((grid_h, grid_w), dtype=int)
 
-    for sel in selected:
+    # for sel in selected:
+    #     pid, _, _, _, cells = placements[sel]
+    #     for (r, c) in cells:
+    #         board[r, c] = pid
+
+    for col, sel in enumerate(selected):
         pid, _, _, _, cells = placements[sel]
         for (r, c) in cells:
-            board[r, c] = pid
+            board[r, c] = col
 
     return board
 
 
 def visualize(board, filename):
-    cmap = plt.get_cmap("tab10").copy()
+    cmap = plt.get_cmap("tab20").copy()
     cmap.set_under("#0b3d0b")  # background color for -1
 
     plt.figure(figsize=(10, 10))
     plt.imshow(board, interpolation='nearest', cmap=cmap, vmin=0)
-    plt.title("Packing result (digits = piece id, -1 empty)")
+    plt.title(f"Packing result {filename}")
     plt.savefig(filename, dpi=120)
     plt.close()
     logger.debug(f"Saved visualization to {filename}")
@@ -136,6 +142,7 @@ def visualize(board, filename):
 # =========================================================
 # 5. Example usage
 # =========================================================
+
 
 def solver(n: int,
            H: int, W: int,
