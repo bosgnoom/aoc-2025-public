@@ -3,3 +3,4 @@
 .coverage
 venv
 images/
+__pycache__
