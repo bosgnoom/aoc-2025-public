@@ -31,6 +31,7 @@ if __name__ == "__main__":
     files = sorted([int(i.stem.replace('packing_result_', '')) for i in Path('12/images/').glob('*.png')])
 
     needed = [i for i in range(len(possibilities)) if i not in files]
+    logger.info(needed)
 
     if not needed:
         logger.info("All done!")
