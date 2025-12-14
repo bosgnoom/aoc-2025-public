@@ -1,5 +1,7 @@
 coloredlogs
 pytest
+pytest-cov
 pygame-ce
 shapely
 pulp
+networkx
