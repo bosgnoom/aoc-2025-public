@@ -3,6 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pulp import LpProblem, LpVariable, LpBinary, lpSum, LpStatus, LpMinimize
 from pulp import HiGHS_CMD, PULP_CBC_CMD
+import logging
+import coloredlogs
+from collections import defaultdict
+from day12 import read_input
+
+coloredlogs.install(level='INFO', fmt='%(asctime)s %(levelname)s %(name)s [%(module)s:%(funcName)s] %(message)s')
+logger = logging.getLogger(__name__)
 
 # =========================================================
 # 1. Utilities for rotations, reflections, orientation gen
@@ -63,6 +70,7 @@ def enumerate_placements(grid_h, grid_w, piece_types):
 # =========================================================
 
 def solve_pulp(grid_h, grid_w, piece_types):
+    logger.info('Setting up PuLP')
     placements = enumerate_placements(grid_h, grid_w, piece_types)
 
     prob = LpProblem("PiecePacking", LpMinimize)
@@ -84,18 +92,18 @@ def solve_pulp(grid_h, grid_w, piece_types):
                 x[i] for i, (_, _, _, _, cells) in enumerate(placements) if (r, c) in cells
             ) <= 1
 
-    print("Solving with CBC...")
+    logger.info("Solving with CBC...")
     prob.solve(PULP_CBC_CMD(msg=1))  # , timeLimit=300))
-    # print("Solving with HIGHS...")
+    # logger.info("Solving with HIGHS...")
     # prob.solve(HiGHS_CMD(msg=True, timeLimit=300))
 
     if LpStatus[prob.status] != "Optimal":
-        print("No optimal solution found:", LpStatus[prob.status])
-        return None, placements, None
+        logger.critical(f"No optimal solution found: {LpStatus[prob.status]}")
+        return None, placements
 
-    print("Optimal solution found.")
+    logger.info("Optimal solution found.")
     selected = [i for i in range(len(x)) if x[i].value() > 0.5]
-    return selected, placements, prob
+    return selected, placements
 
 
 # =========================================================
@@ -113,51 +121,63 @@ def render_solution(grid_h, grid_w, piece_types, placements, selected):
     return board
 
 
-def visualize(board, filename="result.png"):
+def visualize(board, filename):
+    cmap = plt.get_cmap("tab10").copy()
+    cmap.set_under("#0b3d0b")  # background color for -1
+
     plt.figure(figsize=(10, 10))
-    plt.imshow(board, interpolation='nearest', cmap="tab10")
+    plt.imshow(board, interpolation='nearest', cmap=cmap, vmin=0)
     plt.title("Packing result (digits = piece id, -1 empty)")
-    # plt.colorbar()
     plt.savefig(filename, dpi=120)
     plt.close()
-    print("Saved visualization to", filename)
+    logger.debug(f"Saved visualization to {filename}")
 
 
 # =========================================================
 # 5. Example usage
 # =========================================================
 
-def solver(n: int = 0, H: int = 25, W: int = 25, needeth: list[int] = [1, 2, 3, 4, 5, 6]) -> bool:
-    # Example grid
-    # H, W = 49, 65
+def solver(n: int,
+           H: int, W: int,
+           blocks: defaultdict,
+           packing_list: list[int]) -> bool:
 
-    # Example pieces: (pattern, count_required)
+    piece_types = []
+    for i in range(len(packing_list)):
+        piece_types.append((blocks[i], packing_list[i]))
 
-    piece_types = [
-        (["###", ".#.", "###"], needeth[0]),
-        (["###", ".##", "##."], needeth[1]),
-        (["###", "##.", "#.."], needeth[2]),
-        (["###", "#.#", "#.#"], needeth[3]),
-        (["###", "###", "..#"], needeth[4]),
-        (["##.", ".##", ".##"], needeth[5]),
-    ]
-
-    selected, placements, prob = solve_pulp(H, W, piece_types)
+    selected, placements = solve_pulp(H, W, piece_types)
 
     if selected is None:
-        print("None from selected, infeasible")
+        logger.critical("None from selected, infeasible")
         return False
 
     board = render_solution(H, W, piece_types, placements, selected)
-
-    # print("\nBoard:")
-    # for r in range(H):
-    #     print("".join('.' if board[r, c] == -1 else str(board[r, c]) for c in range(W)))
 
     visualize(board, Path(f"12/images/packing_result_{n}.png"))
 
     return True
 
 
+def day12_visual_sample(filename):
+    # Process sample file here
+    blocks, _, presents = read_input(Path(filename))
+
+    # Loop over all items in sample file
+    solutions = []
+    for i, line in enumerate(presents):
+        line = line.split(': ')
+        width, length = [int(x) for x in line[0].split('x')]
+        packing_list = [int(x) for x in line[1].split(' ')]
+
+        solutions.append(
+            solver(1000+i, length, width, blocks, packing_list))
+
+    # Show result
+    logger.info(f'Amount of possibilities: {sum(solutions)}')
+
+    return sum(solutions)
+
+
 if __name__ == "__main__":
-    solver(0, 25, 25, [1, 2, 10, 11, 4, 6])
+    day12_visual_sample('12/sample01.txt')
